@@ -14,7 +14,7 @@ credit["impaired_flag"] = credit["days_past_due"] > 0
 #Define denominator for impaired rate calculation
 active = credit[credit["balance"] > 0]
 
-impaired = active[active["days_past_due"] > 0]
+impaired = active[active["days_past_due"] > 30]
 
 impaired_rate = impaired["balance"].sum() / active["balance"].sum()
 
@@ -25,17 +25,20 @@ avg_arrears = impaired["balance"].sum() / impaired.shape[0] if impaired.shape[0]
 print(f"Average Arrears per Impaired Account: KES {avg_arrears:,.2f}")
 
 #Default Rate
-default_rate = impaired[impaired["days_past_due"] >= 90]["balance"].sum() / active["balance"].sum()
+default_rate = impaired[impaired["days_past_due"] >= 60]["balance"].sum() / active["balance"].sum()
 print(f"Default Rate: {default_rate:.2%}")
 
-#NPE Rate
-npe_rate = impaired[impaired["days_past_due"] >= 30]["balance"].sum() / credit["balance"].sum()
+#NPE Rate whole year
+npe_rate = impaired[impaired["days_past_due"] >= 90]["balance"].sum() / credit["balance"].sum()
 print(f"Non-Performing Exposure (NPE) Rate: {npe_rate:.2%}")
+#NPE Rate Average
+npe_rate_avg = credit.groupby('date').apply(lambda x: x[x['days_past_due'] >= 90]['balance'].sum() / x['balance'].sum()).mean() 
+print(f"Average Non-Performing Exposure (NPE) Rate: {npe_rate_avg:.2%}")
 
 #--------------------Visualization-----------------
 
 #NPE Rate Bar chart monthly
-npe_rate_monthly = credit.groupby('date').apply(lambda x: x[x['days_past_due'] >= 30]['balance'].sum() / x['balance'].sum())
+npe_rate_monthly = credit.groupby('date').apply(lambda x: x[x['days_past_due'] >= 90]['balance'].sum() / x['balance'].sum())
 npe_rate_monthly.plot(kind='line', figsize=(10, 6))
 plt.title('Monthly Non-Performing Exposure (NPE) Rate')
 plt.xlabel('Snapshot Date')
