@@ -1,4 +1,8 @@
 #--------------------Customer Data date of birth preparation--------------------
+# Datetimeconversion of the date of birth column
+customer_dob['date_of_birth'] = pd.to_datetime(customer_dob['date_of_birth'], errors='coerce') #--Change the date format to datetime and handle errors by coercing them to NaT
+#Quality check after format change-If it worked
+customer_dob['date_of_birth'].dtype
 #Extract only the date part from the datetime column
 customer_dob['date_of_birth'] = customer_dob['date_of_birth'].dt.date
 
